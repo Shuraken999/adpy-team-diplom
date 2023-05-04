@@ -40,13 +40,13 @@ def user_data(user_id):
         else:
             sex = 'женский'
         dict = {
-            'фото пользователя': top_3_photos,
-            'имя': first_name,
-            'фамилия': last_name,
-            'Город': city,
-            'пол человека': sex,
-            'возраст человека': date_year.days,
-            'cсылка на профиль': profile_link
+            'user_photo': top_3_photos,
+            'name': first_name,
+            'last_name': last_name,
+            'city': city,
+            'sex': sex,
+            'human_age': date_year.days,
+            'profile_link': profile_link
         }
 
 
