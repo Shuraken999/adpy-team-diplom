@@ -1,0 +1,7 @@
+[
+  {"model": "user", "fields": {"name": "Александр", "surname": "Петров", "age": "22", "gender": "мужской", "city": "Самара" }},
+  {"model": "baseman", "fields": {"name": "Лариса", "surname": "Попова", "link": "ya.ru", "foto": "ya.ru"}},
+  {"model": "baseman", "fields": {"name": "Прокопа", "surname": "Сидорова", "link": "google.ru", "foto": "google.ru"}},
+  {"model": "favorites", "fields": {"user": "1", "man": "1"}},
+  {"model": "disregard", "fields": {"user": "1", "man": "2"}}
+]
