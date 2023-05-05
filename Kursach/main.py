@@ -3,13 +3,11 @@ import json
 from sqlalchemy.orm import sessionmaker
 
 from models import create_tables, User, BaseMan, Favorites, Disregard
-# from settings import DSN
+from settings import DSN
 
 
-engine = create_engine('postgresql://postgres:123456@localhost:5432/testkurs')
-
+engine = create_engine(DSN)
 create_tables(engine)
-
 Session = sessionmaker(bind=engine)
 session = Session()
 
