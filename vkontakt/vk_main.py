@@ -7,7 +7,7 @@ from datetime import datetime
 
 def user_data(user_id):
     users = session.method('users.get', {'user_id': user_id,
-                                         'fields': 'bdate, sex, screen_name, city'} )
+                                         'fields': 'bdate, sex, screen_name, city'})
     photos = session.method('photos.get', {'user_id': user_id,
                                            'count': 6,
                                            'album_id': 'profile',
@@ -48,7 +48,6 @@ def user_data(user_id):
             'human_age': date_year.days,
             'profile_link': profile_link
         }
-
 
         return dict
 
