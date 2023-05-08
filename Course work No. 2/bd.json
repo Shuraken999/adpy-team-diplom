@@ -1,7 +1,9 @@
 [
   {"model": "user", "fields": {"name": "Александр", "surname": "Петров", "age": "22", "gender": "мужской", "city": "Самара" }},
-  {"model": "baseman", "fields": {"name": "Лариса", "surname": "Попова", "link": "ya.ru", "foto": "ya.ru"}},
-  {"model": "baseman", "fields": {"name": "Прокопа", "surname": "Сидорова", "link": "google.ru", "foto": "google.ru"}},
+  {"model": "baseman", "fields": {"name": "Лариса", "surname": "Попова", "link": "ya.ru", "foto1": "ya.ru", "foto2": "ya.ru", "foto3": "ya.ru"}},
+  {"model": "baseman", "fields": {"name": "Вера", "surname": "Павлова", "link": "ya1.ru", "foto1": "ya1.ru", "foto2": "ya1.ru", "foto3": "ya1.ru"}},
+  {"model": "baseman", "fields": {"name": "Прокопа", "surname": "Сидорова", "link": "google.ru", "foto1": "google.ru", "foto2": "google.ru", "foto3": "google.ru"}},
   {"model": "favorites", "fields": {"user": "1", "man": "1"}},
-  {"model": "disregard", "fields": {"user": "1", "man": "2"}}
+  {"model": "favorites", "fields": {"user": "1", "man": "2"}},
+  {"model": "disregard", "fields": {"user": "1", "man": "3"}}
 ]

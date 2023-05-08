@@ -25,7 +25,9 @@ class BaseMan(Base):
     name = Column(String(length=40), unique=True)
     surname = Column(String(length=40), unique=True)
     link = Column(String(length=4000), unique=True)
-    foto = Column(String(length=4000), unique=True)
+    foto1 = Column(String(length=4000), unique=True)
+    foto2 = Column(String(length=4000), unique=True)
+    foto3 = Column(String(length=4000), unique=True)
 
     def __str__(self):
         return f'{self.title}'
@@ -55,7 +57,7 @@ class Disregard(Base):
     user = relationship(User, backref="disregard")
     baseman = relationship(BaseMan, backref="disregard")
 
-
+# Зачистка и новое создание БД
 def create_tables(engine):
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
