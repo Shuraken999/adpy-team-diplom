@@ -1,59 +1,59 @@
 import os
-from dotenv import load_dotenv, find_dotenv
-import vk_api
+import asyncio
 from pprint import pprint
+from dotenv import load_dotenv, find_dotenv
+from vkbottle import Keyboard, KeyboardButtonColor, Text, API
 from datetime import datetime
+from vkbottle.exception_factory import VKAPIError
+from random import randint
 
+load_dotenv(find_dotenv())
+token = (os.getenv('token_vk'))
+api = API(token=token)
 
-def user_data(user_id):
-    users = session.method('users.get', {'user_id': user_id,
-                                         'fields': 'bdate, sex, screen_name, city'} )
-    photos = session.method('photos.get', {'user_id': user_id,
-                                           'count': 6,
-                                           'album_id': 'profile',
-                                           'extended': 1})
-    vk_sizes = {'s': 1, 'm': 2, 'o': 3, 'p': 4, 'q': 5, 'r': 6, 'x': 7, 'y': 8, 'z': 9, 'w': 10}
-    dict1 = {}
-    for photo in photos['items']:
-        likes = photo['likes']['count']
-        size = max(photo['sizes'], key=lambda s: vk_sizes[s['type']])
-        url1 = size['url']
-        dict1[url1] = likes
-    sorted_photos = sorted(dict1.items(), key=lambda x: x[1], reverse=True)
-    top_3_photos = sorted_photos[:3]
-    for user in users:
-        profile_link = f"https://vk.com/{user['screen_name']}"
-        first_name = user['first_name']
-        last_name = user['last_name']
+async def get_inf(uid):
+    user_info = await api.users.get(token=token, user_ids=uid, fields='bdate, sex, city')
+    user_info_dict = user_info[0].__dict__
+
+    if user_info_dict.get('bdate') != None:
+        # Преобразование строки в объект даты
+        bdate = datetime.strptime(user_info_dict.get('bdate'), '%d.%m.%Y')
+        # Получение текущей даты
+        today = datetime.today()
+        # Вычисление возраста в годах
+        age = today.year - bdate.year - ((today.month, today.day) < (bdate.month, bdate.day))
+    else:
+        age = None
+
+    if user_info_dict.get('city') is not None:
+        city_id = user_info_dict.get('city').id
+    else:
+        city_id = None
+    need_info = {
+        'id': user_info_dict.get('id'),
+        'age': age,
+        'sex': user_info_dict.get('sex').value,
+        'city': city_id
+    }
+    return need_info
+
+async def search(age, sex, city, offset):
+    users = await api.users.search(sex=sex, city=city, age_from=age-2, age_to=age+2, count=1, offset=offset)
+    users_with_photos = []
+    for user in users.items:
         try:
-            city = user['city']['title']
-        except KeyError:
-            city = 'город не указан'
-        date_time = datetime.today()
-        date = date_time.date()
-        age = user['bdate']
-        datetime_obj = datetime.strptime(age, '%d.%m.%Y').date()
-        result_date = date - datetime_obj
-        date_year = result_date / 365
-        if user['sex'] == 2:
-            sex = 'мужской'
-        else:
-            sex = 'женский'
-        dict = {
-            'user_photo': top_3_photos,
-            'name': first_name,
-            'last_name': last_name,
-            'city': city,
-            'sex': sex,
-            'human_age': date_year.days,
-            'profile_link': profile_link
-        }
+            user_info = await get_inf(user.id)
+            user_photos = await api.photos.get(owner_id=user.id, album_id='profile', count=3)
+            user_info['photos'] = [photo.id for photo in user_photos.items]
+            user_info['first_name'] = (await api.users.get(user_ids=user_info.get('id'), fields='status'))[0].first_name # добавляем имя пользователя
+            user_info['last_name'] = (await api.users.get(user_ids=user_info.get('id'), fields='status'))[0].last_name # добавляем фамилию пользователя
+            user_info['link'] = f"https://vk.com/{(await api.users.get(user_ids=user_info.get('id'), fields='screen_name'))[0].screen_name}"
+            users_with_photos.append(user_info)
+            await asyncio.sleep(1)  # задержка перед requests
+        except VKAPIError as e:
+            print(f"Skipping user {user.id}: profile is private")
+            continue
+    return users_with_photos
 
-
-        return dict
-
-if __name__ == "__main__":
-    load_dotenv(find_dotenv())
-    token = (os.getenv('token_vk'))
-    session = vk_api.VkApi(token=token)
-    pprint(user_data('154186755'))
+if __name__ == '__main__':
+    pprint(asyncio.run(search(20, 2, 2, 1)))
