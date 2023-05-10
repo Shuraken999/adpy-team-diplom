@@ -39,6 +39,7 @@ async def get_inf(uid):
     }
     return need_info
 
+
 async def search(age, sex, city, offset):
     users = await api.users.search(sex=sex, city=city, age_from=age-2, age_to=age+2, count=1, offset=offset)
     users_with_photos = []
@@ -47,9 +48,12 @@ async def search(age, sex, city, offset):
             user_info = await get_inf(user.id)
             user_photos = await api.photos.get(owner_id=user.id, album_id='profile', count=3)
             user_info['photos'] = [photo.id for photo in user_photos.items]
-            user_info['first_name'] = (await api.users.get(user_ids=user_info.get('id'), fields='status'))[0].first_name # добавляем имя пользователя
-            user_info['last_name'] = (await api.users.get(user_ids=user_info.get('id'), fields='status'))[0].last_name # добавляем фамилию пользователя
-            user_info['link'] = f"https://vk.com/{(await api.users.get(user_ids=user_info.get('id'), fields='screen_name'))[0].screen_name}"
+            # добавляем имя пользователя
+            user_info['first_name'] = (await api.users.get(user_ids=user_info.get('id'), fields='status'))[0].first_name
+            # добавляем фамилию пользователя
+            user_info['last_name'] = (await api.users.get(user_ids=user_info.get('id'), fields='status'))[0].last_name
+            user_info['link'] = f"https://vk.com/" \
+            f"{(await api.users.get(user_ids=user_info.get('id'), fields='screen_name'))[0].screen_name}"
             users_with_photos.append(user_info)
             await asyncio.sleep(1)  # задержка перед requests
         except VKAPIError as e:

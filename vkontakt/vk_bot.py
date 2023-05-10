@@ -10,7 +10,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 
-
 # Получаем токен
 load_dotenv(find_dotenv())
 token = (os.getenv('token_group'))
@@ -36,6 +35,7 @@ SKIP_BUTTONS = (
 
 user_gender = {}
 
+
 @bot.on.message(text='Привет')
 async def handle_message(message: Message):
     await message.answer('😉 Отлично! Начинаем подбирать пару')
@@ -50,6 +50,7 @@ async def handle_message(message: Message):
         return
     await message.answer("Какого пола будем искать пару?", keyboard=M_J_KEYBOARD)
 
+
 @bot.on.message(text='м')
 async def handle_male(message: Message):
     user_id = message.from_id
@@ -59,6 +60,7 @@ async def handle_male(message: Message):
     .add(Text("Начать поиск!"), color=KeyboardButtonColor.PRIMARY)
     .get_json()
 ))
+
 
 @bot.on.message(text='ж')
 async def handle_female(message: Message):
@@ -72,6 +74,7 @@ async def handle_female(message: Message):
 
 i = 0
 m = 1
+
 
 @bot.on.message(text='Добавить в избранное')
 async def add_to_favorites_handler(message: Message):
@@ -119,6 +122,7 @@ async def add_to_favorites_handler(message: Message):
     m += 1
     i += 1
 
+
 @bot.on.message(text='Показать избранных')
 async def show_favorites_handler(message: Message):
     engine = create_engine(DSN)
@@ -136,6 +140,8 @@ async def show_favorites_handler(message: Message):
                                  keyboard=SKIP_BUTTONS)
     session.commit()
     session.close()
+
+
 @bot.on.message(text='Начать поиск!')
 async def start_searching(message: Message):
     global i
@@ -165,7 +171,8 @@ async def start_searching(message: Message):
         else:
             attachment = None
         await message.answer(
-            f"{find[0].get('first_name')} {find[0].get('last_name')}.\n Возраст: {find[0].get('age')}.\nCсылка на профиль: {find[0].get('link')}",
+            f"{find[0].get('first_name')} {find[0].get('last_name')}.\n "
+            f"Возраст: {find[0].get('age')}.\nCсылка на профиль: {find[0].get('link')}",
             reply_to=message.reply_message.from_id, attachment=attachment, keyboard=SKIP_BUTTONS)
     else:
         if photos:
@@ -173,13 +180,15 @@ async def start_searching(message: Message):
         else:
             attachment = None
         await message.answer(
-            f"{find[0].get('first_name')} {find[0].get('last_name')}.\n Возраст: {find[0].get('age')}.\nCсылка на профиль: {find[0].get('link')}",
+            f"{find[0].get('first_name')} {find[0].get('last_name')}.\n Возраст: {find[0].get('age')}."
+            f"\nCсылка на профиль: {find[0].get('link')}",
             attachment=attachment, keyboard=SKIP_BUTTONS)
         i += 1
+
+
 @bot.on.message(text='Далее')
 async def skipping(message: Message):
     await start_searching(message)
 
 
 bot.run_forever()
-
