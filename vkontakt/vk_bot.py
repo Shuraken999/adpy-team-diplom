@@ -10,7 +10,6 @@ load_dotenv(find_dotenv())
 token = (os.getenv('token_group'))
 bot = Bot(token=token)
 
-
 M_J_KEYBOARD = (
     Keyboard(one_time=False, inline=True)
     .add(Text("м"), color=KeyboardButtonColor.POSITIVE)
@@ -28,6 +27,7 @@ SKIP_BUTTONS = (
 
 user_gender = {}
 
+
 @bot.on.message(text='Привет')
 async def handle_message(message: Message):
     await message.answer('😉 Отлично! Начинаем подбирать пару')
@@ -37,44 +37,42 @@ async def handle_message(message: Message):
     except VKAPIError:
         await message.answer('Ваш профиль закрыт 😕\nОткройте профлиль для работы бота.')
         return
-    if result.get('age') == None or result.get('sex') == None or result.get('city') == None:
+    if result.get('age') is None or result.get('sex') is None or result.get('city') is None:
         await message.answer('У вашего профиля не заполнен пол, возраст или город. Мы не можем найти вам пару 😕')
         return
     await message.answer("Какого пола будем искать пару?", keyboard=M_J_KEYBOARD)
+
 
 @bot.on.message(text='м')
 async def handle_male(message: Message):
     user_id = message.from_id
     user_gender[user_id] = "м"
-    await message.answer("Вы выбрали для поиска мужской пол", keyboard=(
-    Keyboard(one_time=False, inline=True)
-    .add(Text("Начать поиск!"), color=KeyboardButtonColor.PRIMARY)
-    .get_json()
-))
+    await message.answer("Вы выбрали для поиска мужской пол",
+                         keyboard=(Keyboard(one_time=False, inline=True)
+                                   .add(Text("Начать поиск!"), color=KeyboardButtonColor.PRIMARY)
+                                   .get_json()
+                                   ))
+
 
 @bot.on.message(text='ж')
 async def handle_female(message: Message):
     user_id = message.from_id
     user_gender[user_id] = 'ж'
-    await message.answer("Вы выбрали для поиска женский пол", keyboard=(
-    Keyboard(one_time=False, inline=True)
-    .add(Text("Начать поиск!"), color=KeyboardButtonColor.PRIMARY)
-    .get_json()
-))
+    await message.answer("Вы выбрали для поиска женский пол",
+                         keyboard=(Keyboard(one_time=False, inline=True)
+                                   .add(Text("Начать поиск!"), color=KeyboardButtonColor.PRIMARY)
+                                   .get_json()
+                                   ))
 
-i = 0
-m = 1
 
 @bot.on.message(text='Добавить в избранное')
 async def add_to_favorites_handler(message: Message):
     global i
-    global m
-    i -= 1
     user_id = message.from_id
     try:
         result = await vk_main.get_inf(user_id)
         user_gender_choice = user_gender.get(user_id)
-        if user_gender_choice == None:
+        if user_gender_choice is None:
             await message.answer('Пожалуйста, сначала выберите пол, чтобы мы могли найти подходящую пару')
             return
         if user_gender_choice not in ['м', 'ж']:
@@ -84,11 +82,9 @@ async def add_to_favorites_handler(message: Message):
         find = await vk_main.search(result.get('age'), sex, result.get('city'), i)
         await message.answer(f"Пользователь {find[0].get('first_name')} добавлен в избранное.")
         with open('favorits.txt', 'a') as f:
-            f.write(f"{find[0].get('id')} : {m} \n")
+            f.write(f"{find[0].get('id')} \n")
     except VKAPIError:
         await message.answer(f"Не удалось добавить в избранное{message.reply_message.from_id}")
-
-    m += 1
     i += 1
 
 @bot.on.message(text='Показать избранных')
@@ -102,7 +98,7 @@ async def show_favorites_handler(message: Message):
         profiles = [f"https://vk.com/id{user_id}" for user_id in favorites]
     await message.answer("Список избранных пользователей:\n" + "\n".join(profiles), keyboard=SKIP_BUTTONS)
 
-
+i = 0
 @bot.on.message(text='Начать поиск!')
 async def start_searching(message: Message):
     global i
@@ -113,11 +109,11 @@ async def start_searching(message: Message):
     except VKAPIError:
         await message.answer('Ваш профиль закрыт 😕\nОткройте профиль для работы бота.')
         return
-    if result.get('age') == None or result.get('city') == None:
+    if result.get('age') is None or result.get('city') is None:
         await message.answer('У вашего профиля не заполнен возраст или город. Мы не можем найти вам пару 😕')
         return
     user_gender_choice = user_gender.get(user_id)
-    if user_gender_choice == None:
+    if user_gender_choice is None:
         await message.answer('Пожалуйста, сначала выберите пол, чтобы мы могли найти подходящую пару')
         return
     if user_gender_choice not in ['м', 'ж']:
@@ -132,7 +128,8 @@ async def start_searching(message: Message):
         else:
             attachment = None
         await message.answer(
-            f"{find[0].get('first_name')} {find[0].get('last_name')}.\n Возраст: {find[0].get('age')}.\nCсылка на профиль: {find[0].get('link')}",
+            f"{find[0].get('first_name')} {find[0].get('last_name')}.\n Возраст: {find[0].get('age')}."
+            f"\nCсылка на профиль: {find[0].get('link')}",
             reply_to=message.reply_message.from_id, attachment=attachment, keyboard=SKIP_BUTTONS)
     else:
         if photos:
@@ -140,11 +137,14 @@ async def start_searching(message: Message):
         else:
             attachment = None
         await message.answer(
-            f"{find[0].get('first_name')} {find[0].get('last_name')}.\n Возраст: {find[0].get('age')}.\nCсылка на профиль: {find[0].get('link')}",
+            f"{find[0].get('first_name')} {find[0].get('last_name')}.\n Возраст: {find[0].get('age')}."
+            f"\nCсылка на профиль: {find[0].get('link')}",
             attachment=attachment, keyboard=SKIP_BUTTONS)
-        i += 1
+    i += 1
+
 @bot.on.message(text='Далее')
 async def skipping(message: Message):
     await start_searching(message)
+
 
 bot.run_forever()
