@@ -1,16 +1,15 @@
-import os
+﻿import os
 import asyncio
 from pprint import pprint
 from dotenv import load_dotenv, find_dotenv
-from vkbottle import Keyboard, KeyboardButtonColor, Text, API
+from vkbottle import API
 from datetime import datetime
 from vkbottle.exception_factory import VKAPIError
-from random import randint
+
 
 load_dotenv(find_dotenv())
 token = (os.getenv('token_vk'))
 api = API(token=token)
-
 
 async def get_inf(uid):
     user_info = await api.users.get(token=token, user_ids=uid, fields='bdate, sex, city')
@@ -43,17 +42,16 @@ async def get_inf(uid):
 
 
 async def search(age, sex, city, offset=0, count=1):
-    random = randint(0, 999)
-    users = await api.users.search(sex=sex, city=city, age_from=age - 2, age_to=age + 2, count=count, offset=offset)
+    users = await api.users.search(sex=sex, city=city, age_from=age - 2, age_to=age + 2, offset=offset, count=count,)
     users_with_photos = []
     for user in users.items:
         try:
-            user_info = await api.users.get(token=token, user_ids=user.id, fields='bdate, sex, city, screen_name')
+            user_info = await api.users.get(token=token, user_ids=[user.id], fields=['bdate, sex, city, screen_name'])
             user_info_dict = user_info[0].__dict__
 
             user_photos = await api.photos.get(owner_id=user.id, count=6,
                                                album_id='profile',
-                                               extended=1)
+                                               extended=True)
             if user_info_dict.get('bdate') is not None:
                 # Преобразование строки в объект даты
                 bdate = datetime.strptime(user_info_dict.get('bdate'), '%d.%m.%Y')
@@ -73,10 +71,8 @@ async def search(age, sex, city, offset=0, count=1):
             for photo in user_photos.items:
                 dict_[photo.id] = photo.likes.count
             sorted_photos = sorted(dict_.items(), key=lambda x: x[1], reverse=True)
-            top_3_photos = sorted_photos[:3]
-            for top_photo in top_3_photos:
-                photo_top_3 = top_photo[0]
-                list_photos.append(photo_top_3)
+            for top_photo in sorted_photos[:3]:
+                list_photos.append(top_photo[0])
             dict_profile = {
                 'photos': list_photos,
                 'first_name': user_info_dict.get('first_name'),
